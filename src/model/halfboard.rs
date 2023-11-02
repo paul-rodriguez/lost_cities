@@ -1,26 +1,26 @@
-
-use itertools::Itertools;
-use std::rc::Rc;
-use std::collections::BTreeMap;
-use core::ops::Range;
 use super::Card;
 use super::Color;
-use super::Side;
 use super::Expedition;
-use std::{cmp,fmt};
+use super::Side;
+use core::ops::Range;
+use itertools::Itertools;
+use std::collections::BTreeMap;
+use std::rc::Rc;
+use std::{cmp, fmt};
 
 #[derive(Clone)]
 pub struct Halfboard {
     side: Side,
-    expeditions: Rc<BTreeMap<Color, Expedition>>
+    expeditions: Rc<BTreeMap<Color, Expedition>>,
 }
 
 impl Halfboard {
     pub fn new(side: Side) -> Halfboard {
-        let expeditions = Color::all()
-            .map(|c| (c, Expedition::new(c)))
-            .collect();
-        Halfboard {side, expeditions: Rc::new(expeditions)}
+        let expeditions = Color::all().map(|c| (c, Expedition::new(c))).collect();
+        Halfboard {
+            side,
+            expeditions: Rc::new(expeditions),
+        }
     }
 
     pub fn with(&self, card: Card) -> Option<Halfboard> {
@@ -44,7 +44,8 @@ impl Halfboard {
     }
 
     fn displayColLen(&self) -> usize {
-        let n = self.expeditions
+        let n = self
+            .expeditions
             .values()
             .map(|e| e.nbCards())
             .max()
@@ -60,14 +61,28 @@ impl fmt::Display for Halfboard {
             Side::Down => Box::new(baseRange),
             Side::Up => Box::new(baseRange.rev()),
         };
-        let lines = orderRange.map(|n|
-            Color::all()
-                .map(|c| match self.expeditions.get(&c).unwrap().nth(n) {
+        let lines = orderRange
+            .map(|n| {
+                Color::all()
+                    .map(|c| match self.expeditions.get(&c).unwrap().nth(n) {
                         Some(card) => format!("{}", card),
                         None => "  ".to_string(),
                     })
-                .join(" | "))
+                    .join(" | ")
+            })
             .join("\n");
         write!(f, "{}", lines)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_canAccept() {
+        let h = Halfboard::new(Side::Up).with(Card::fromId(7)).unwrap();
+        assert!(h.canAccept(Card::fromId(8)));
+        assert!(!h.canAccept(Card::fromId(0)));
     }
 }

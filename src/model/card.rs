@@ -1,9 +1,7 @@
-
-use std::fmt;
-use std::vec::Vec;
 use super::{Color, Value};
+use std::fmt;
 
-#[derive(Clone,Copy,Eq,Hash,PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct Card {
     id: u8,
 }
@@ -13,7 +11,7 @@ impl Card {
         if !Self::isValidId(id) {
             panic!()
         }
-        Card{id}
+        Card { id }
     }
 
     pub fn color(&self) -> Color {
@@ -24,10 +22,8 @@ impl Card {
         Value::fromId(self.id)
     }
 
-    pub fn set() -> Vec<Card> {
-        (0..Self::maxId())
-            .map(|id| Card{id})
-            .collect()
+    pub fn set() -> Box<dyn Iterator<Item = Card>> {
+        Box::new((0..Self::maxId()).map(|id| Card { id }))
     }
 
     pub fn canBeStackedOn(&self, other: Card) -> bool {
@@ -42,12 +38,14 @@ impl Card {
         id < Self::maxId()
     }
 
-    fn maxId() -> u8 {
+    pub fn maxId() -> u8 {
         60
     }
+
+    pub fn toId(self) -> u8 {
+        self.id
+    }
 }
-
-
 
 impl fmt::Display for Card {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -61,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_create() {
-        card = Card{
+        card = Card {
             color: Color::White,
             value: Value::Bet,
         }

@@ -1,17 +1,21 @@
-
-mod halfboard;
-mod expedition;
 mod board;
 mod card;
 mod color;
-mod value;
+mod deck;
+mod discardpile;
+mod expedition;
+mod halfboard;
+mod hand;
 mod side;
+mod value;
 
-pub use self::halfboard::Halfboard;
-pub use self::expedition::Expedition;
 pub use self::board::Board;
 pub use self::card::Card;
 pub use self::color::Color;
-pub use self::value::Value;
+pub use self::deck::Deck;
+pub use self::discardpile::DiscardPile;
+pub use self::expedition::Expedition;
+pub use self::halfboard::Halfboard;
+pub use self::hand::Hand;
 pub use self::side::Side;
-
+pub use self::value::Value;

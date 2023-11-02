@@ -1,9 +1,8 @@
-
-use std::fmt;
 use enum_primitive_derive::Primitive;
 use num_traits::FromPrimitive;
+use std::fmt;
 
-#[derive(Clone,Copy,Eq,Hash,PartialEq,PartialOrd,Primitive,Ord)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Primitive, Ord)]
 pub enum Color {
     Yellow = 0,
     Blue = 1,
@@ -17,10 +16,6 @@ impl Color {
         Color::from_u8(id)
     }
 
-    pub fn toId(self) -> u8 {
-        self as u8
-    }
-
     pub fn all() -> impl Iterator<Item = Color> {
         vec![
             Color::Yellow,
@@ -28,7 +23,8 @@ impl Color {
             Color::White,
             Color::Green,
             Color::Red,
-        ].into_iter()
+        ]
+        .into_iter()
     }
 }
 

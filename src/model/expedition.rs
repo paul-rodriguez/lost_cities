@@ -1,7 +1,6 @@
-
-use std::rc::Rc;
 use super::Card;
 use super::Color;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct Expedition {
@@ -62,3 +61,19 @@ impl Expedition {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_hasTrue() {
+        let p = Expedition::new(Color::Red).with(Card::fromId(54)).unwrap();
+        assert!(p.has(Card::fromId(54)))
+    }
+
+    #[test]
+    fn test_hasFalse() {
+        let p = Expedition::new(Color::Red).with(Card::fromId(53)).unwrap();
+        assert!(!p.has(Card::fromId(54)))
+    }
+}
