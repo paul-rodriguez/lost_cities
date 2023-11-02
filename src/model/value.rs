@@ -4,7 +4,6 @@ use std::vec::Vec;
 
 #[derive(Clone,Copy,Eq,Hash,PartialEq,PartialOrd)]
 pub enum Value {
-    Undefined,
     Bet,
     N2,
     N3,
@@ -19,15 +18,11 @@ pub enum Value {
 
 impl Value {
     pub fn canBeStackedOn(&self, other: Value) -> bool {
-        if self == &Value::Undefined || other == Value::Undefined {
-            panic!();
-        };
-
         self >= &other
     }
 
     pub fn family() -> Vec<Value> {
-        return vec![
+        vec![
             Value::Bet,
             Value::Bet,
             Value::Bet,
@@ -48,11 +43,7 @@ impl Value {
     }
 
     pub fn fromId(id: u8) -> Value {
-        Value::family()[<u8 as Into<usize>>::into(id)]
-    }
-
-    pub fn validId(id: u8) -> bool {
-        id < Value::familySize()
+        Value::family()[<u8 as Into<usize>>::into(id % Self::familySize())]
     }
 }
 
@@ -69,7 +60,6 @@ impl fmt::Display for Value {
             Value::N8 => "8",
             Value::N9 => "9",
             Value::N10 => "1",
-            Value::Undefined => "U",
         };
         write!(f, "{}", letter)
     }

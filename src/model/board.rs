@@ -1,19 +1,17 @@
 
 use std::rc::Rc;
-use itertools::Itertools;
 use std::collections::BTreeMap;
-use super::HalfBoard;
+
+use crate::model::Halfboard;
 use super::Card;
 use super::Color;
 use super::Side;
-use super::Value;
-use super::Expedition;
 use std::fmt;
 
 
 pub struct Board {
     discard: Rc<BTreeMap<Color, Vec<Card>>>,
-    halves: Rc<BTreeMap<Side, HalfBoard>>,
+    halves: Rc<BTreeMap<Side, Halfboard>>,
 }
 
 impl fmt::Display for Board {
@@ -31,13 +29,13 @@ impl Board {
         Board{
             discard: Rc::new(maplit::btreemap!{}),
             halves: Rc::new(maplit::btreemap!{
-                Side::Up => HalfBoard::new(Side::Up),
-                Side::Down => HalfBoard::new(Side::Down),
+                Side::Up => Halfboard::new(Side::Up),
+                Side::Down => Halfboard::new(Side::Down),
             }),
         }
     }
 
-    pub fn scoreCard(&self, side: Side, card: Card) -> Option<Board> {
+    pub fn scoreCard(self, side: Side, card: Card) -> Option<Board> {
         let newHalf = self.half(side).with(card)?;
         let mut newHalves = Rc::clone(&self.halves);
         Rc::make_mut(&mut newHalves).insert(side, newHalf);
@@ -47,7 +45,7 @@ impl Board {
         })
     }
 
-    fn half(&self, side: Side) -> &HalfBoard {
+    fn half(&self, side: Side) -> &Halfboard {
         return self.halves.get(&side).unwrap()
     }
 }
@@ -57,8 +55,40 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_boardDisplay() {
+    fn test_boardDisplayEmpty() {
         let b = Board::new();
-        assert_eq!(format!("{}", b), "")
+        assert_eq!(format!("{}", b), "   |    |    |    |   \nDiscard\n   |    |    |    |   ")
+    }
+
+    #[test]
+    fn test_boardDisplayOneCard() {
+        let b = Board::new().scoreCard(Side::Up, Card::fromId(45)).unwrap();
+        assert_eq!(format!("{}", b), "   |    |    | G8 |   \nDiscard\n   |    |    |    |   ")
+    }
+
+    #[test]
+    fn test_boardDisplayTwoCardDown() {
+        let b = Board::new()
+            .scoreCard(Side::Down, Card::fromId(20)).unwrap()
+            .scoreCard(Side::Down, Card::fromId(21)).unwrap();
+        assert_eq!(format!("{}", b), "   |    |    |    |   \nDiscard\n   | B7 |    |    |   \n   | B8 |    |    |   ")
+    }
+
+    #[test]
+    fn test_boardDisplayTwoCardUp() {
+        let b = Board::new()
+            .scoreCard(Side::Up, Card::fromId(56)).unwrap()
+            .scoreCard(Side::Up, Card::fromId(57)).unwrap();
+        assert_eq!(format!("{}", b), "   |    |    |    | R8\n   |    |    |    | R7\nDiscard\n   |    |    |    |   ")
+    }
+
+
+    #[test]
+    fn test_boardScoreCard() {
+        let result = Board::new().scoreCard(Side::Up, Card::fromId(5));
+        match result {
+            Some(_) => (),
+            None => panic!()
+        }
     }
 }

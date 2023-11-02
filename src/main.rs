@@ -2,18 +2,18 @@
 
 #[macro_use] extern crate maplit;
 
-use std::{vec,fmt};
+use std::{vec};
 mod model;
 
-use model::{Card, Color, Board, Side};
+use model::{Card, Board, Side};
 
 fn main() {
     println!("Hello, world!");
 
     let _s = model::Card::set();
-    let a: vec::Vec<i32> = _s.into_iter().map(|card| {println!("{}", card); 1}).collect();
-    let mut b = Board::new().scoreCard(Side::Up, Card::new(Color::Yellow, 7)).unwrap();
+    let _a: vec::Vec<i32> = _s.into_iter().map(|card| {println!("{}", card); 1}).collect();
+    let mut b = Board::new().scoreCard(Side::Up, Card::fromId(7)).unwrap();
     println!("{}", b);
-    b = b.scoreCard(Side::Up, Card::new(Color::Yellow, 2)).unwrap();
+    b = b.scoreCard(Side::Up, Card::fromId(2)).unwrap();
     println!("{}", b);
 }

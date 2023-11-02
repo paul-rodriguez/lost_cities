@@ -1,19 +1,28 @@
 
 use std::fmt;
+use enum_primitive_derive::Primitive;
+use num_traits::FromPrimitive;
 
-#[derive(Clone,Copy,Eq,Hash,PartialEq,PartialOrd,Ord)]
+#[derive(Clone,Copy,Eq,Hash,PartialEq,PartialOrd,Primitive,Ord)]
 pub enum Color {
-    Undefined,
-    Yellow,
-    Blue,
-    White,
-    Green,
-    Red,
+    Yellow = 0,
+    Blue = 1,
+    White = 2,
+    Green = 3,
+    Red = 4,
 }
 
 impl Color {
+    pub fn fromId(id: u8) -> Option<Color> {
+        Color::from_u8(id)
+    }
+
+    pub fn toId(self) -> u8 {
+        self as u8
+    }
+
     pub fn all() -> impl Iterator<Item = Color> {
-        return vec![
+        vec![
             Color::Yellow,
             Color::Blue,
             Color::White,
@@ -31,7 +40,6 @@ impl fmt::Display for Color {
             Color::White => "W",
             Color::Green => "G",
             Color::Red => "R",
-            Color::Undefined => "U",
         };
         write!(f, "{}", letter)
     }

@@ -3,6 +3,5 @@
 pub enum Side {
     Up,
     Down,
-    Undefined,
 }
 

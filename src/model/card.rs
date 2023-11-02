@@ -1,21 +1,23 @@
 
 use std::fmt;
-use itertools;
 use std::vec::Vec;
 use super::{Color, Value};
 
-#[derive(Clone,Eq,Hash,PartialEq)]
+#[derive(Clone,Copy,Eq,Hash,PartialEq)]
 pub struct Card {
-    pub color: super::Color,
     id: u8,
 }
 
 impl Card {
-    pub fn new(color: Color, id: u8) -> Card {
-        if !Value::validId(id) {
+    pub fn fromId(id: u8) -> Card {
+        if !Self::isValidId(id) {
             panic!()
         }
-        Card{color, id}
+        Card{id}
+    }
+
+    pub fn color(&self) -> Color {
+        Color::fromId(self.id / 12).unwrap()
     }
 
     pub fn value(&self) -> Value {
@@ -23,26 +25,33 @@ impl Card {
     }
 
     pub fn set() -> Vec<Card> {
-        itertools::iproduct!(
-            super::Color::all(),
-            0..Value::familySize())
-            .map(|(color, id)|
-                Card{color, id: id.try_into().unwrap()})
+        (0..Self::maxId())
+            .map(|id| Card{id})
             .collect()
     }
 
     pub fn canBeStackedOn(&self, other: Card) -> bool {
-        if other.color == self.color {
+        if other.color() == self.color() {
             self.value().canBeStackedOn(other.value())
         } else {
             false
         }
     }
+
+    fn isValidId(id: u8) -> bool {
+        id < Self::maxId()
+    }
+
+    fn maxId() -> u8 {
+        60
+    }
 }
+
+
 
 impl fmt::Display for Card {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.color, self.value())
+        write!(f, "{}{}", self.color(), self.value())
     }
 }
 

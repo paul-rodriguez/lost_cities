@@ -7,7 +7,7 @@ mod color;
 mod value;
 mod side;
 
-pub use self::halfboard::HalfBoard;
+pub use self::halfboard::Halfboard;
 pub use self::expedition::Expedition;
 pub use self::board::Board;
 pub use self::card::Card;

@@ -5,7 +5,7 @@ use super::Color;
 
 #[derive(Clone)]
 pub struct Expedition {
-    pub color: Color,
+    color: Color,
     cards: Rc<Vec<Card>>,
 }
 
@@ -18,7 +18,7 @@ impl Expedition {
     }
 
     pub fn with(&self, card: Card) -> Option<Expedition> {
-        if !self.canAccept(&card) {
+        if !self.canAccept(card) {
             None
         } else {
             let mut v = Rc::clone(&self.cards);
@@ -30,8 +30,8 @@ impl Expedition {
         }
     }
 
-    pub fn canAccept(&self, card: &Card) -> bool {
-        if card.color == self.color {
+    pub fn canAccept(&self, card: Card) -> bool {
+        if card.color() == self.color {
             match self.top() {
                 Some(t) => card.canBeStackedOn(t),
                 None => true,
@@ -55,6 +55,10 @@ impl Expedition {
 
     pub fn nbCards(&self) -> usize {
         self.cards.len()
+    }
+
+    pub fn color(&self) -> Color {
+        self.color
     }
 }
 
