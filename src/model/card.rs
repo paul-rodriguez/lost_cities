@@ -7,6 +7,9 @@ pub struct Card {
 }
 
 impl Card {
+    pub const DECK_SIZE: usize = 60;
+    pub const MAX_ID: u8 = 60;
+
     pub fn fromId(id: u8) -> Card {
         if !Self::isValidId(id) {
             panic!()
@@ -23,7 +26,7 @@ impl Card {
     }
 
     pub fn set() -> Box<dyn Iterator<Item = Card>> {
-        Box::new((0..Self::maxId()).map(|id| Card { id }))
+        Box::new((0..Self::MAX_ID).map(|id| Card { id }))
     }
 
     pub fn canBeStackedOn(&self, other: Card) -> bool {
@@ -35,11 +38,7 @@ impl Card {
     }
 
     fn isValidId(id: u8) -> bool {
-        id < Self::maxId()
-    }
-
-    pub fn maxId() -> u8 {
-        60
+        id < Self::MAX_ID
     }
 
     pub fn toId(self) -> u8 {
