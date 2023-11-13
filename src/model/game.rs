@@ -88,7 +88,7 @@ impl Game {
             board: newBoard,
             deck: self.deck.clone(),
             hands: self.handMapWith(newHand),
-            turn: self.turn,
+            turn: self.turn.opposite(),
         })
     }
 
@@ -102,7 +102,7 @@ impl Game {
             board: self.board.clone(),
             deck: newDeck,
             hands: self.handMapWith(newHand),
-            turn: self.turn,
+            turn: self.turn.opposite(),
         })
     }
 }
@@ -151,7 +151,7 @@ mod tests {
             58, 48, 24, 7, 38, 46, 41, 39, 25, 28, 59, 55, 13, 11, 22, 23, 5, 53, 12, 49,
         ]);
         assert_eq!(game.deck(), expectedDeck);
-        assert_eq!(game.turn(), Side::Up);
+        assert_eq!(game.turn(), Side::Down);
     }
 
     #[test]
@@ -171,7 +171,7 @@ mod tests {
             58, 48, 24, 7, 38, 46, 41, 39, 25, 28, 59, 55, 13, 11, 22, 23, 5, 53, 12, 49,
         ]);
         assert_eq!(game.deck(), expectedDeck);
-        assert_eq!(game.turn(), Side::Up);
+        assert_eq!(game.turn(), Side::Down);
     }
 
     #[test]
@@ -195,7 +195,7 @@ mod tests {
             30, 58, 48, 24, 7, 38, 46, 41, 39, 25, 28, 59, 55, 13, 11, 22, 23, 5, 53, 12, 49,
         ]);
         assert_eq!(game.deck(), expectedDeck);
-        assert_eq!(game.turn(), Side::Up);
+        assert_eq!(game.turn(), Side::Down);
     }
 
     #[test]
