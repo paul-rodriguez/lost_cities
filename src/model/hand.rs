@@ -1,8 +1,11 @@
-use super::{Card, Deck, Side};
+use super::{Card, Deck, Error, Side};
+use anyhow;
 use bit_set::BitSet;
+use itertools::Itertools;
 use std::collections::HashSet;
+use std::fmt;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Hand {
     side: Side,
     cards: BitSet,
@@ -22,6 +25,19 @@ impl Hand {
         Some((Hand { side, cards }, newDeck))
     }
 
+    pub fn literal(side: Side, cards: &[Card]) -> anyhow::Result<Hand> {
+        if cards.len() > Hand::SIZE {
+            anyhow::bail!("Too many cards");
+        }
+        let empty = BitSet::with_capacity(Card::DECK_SIZE);
+        let bits: anyhow::Result<BitSet> = cards.iter().fold(Ok(empty), |b, c| {
+            let mut r = b?.clone();
+            r.insert(c.toId().try_into()?);
+            Ok(r)
+        });
+        Ok(Hand { side, cards: bits? })
+    }
+
     pub fn toSet(&self) -> HashSet<Card> {
         self.cards
             .iter()
@@ -29,17 +45,53 @@ impl Hand {
             .collect()
     }
 
-    pub fn take(&self, card: Card) -> Option<Hand> {
+    pub fn toVec(&self) -> Vec<Card> {
+        self.cards
+            .iter()
+            .sorted()
+            .map(|n| Card::fromId(n.try_into().unwrap()))
+            .collect()
+    }
+
+    pub fn take(&self, card: Card) -> Result<Hand, Error> {
         let mut newCards = self.cards.clone();
         let wasPresent = newCards.remove(card.toId().into());
         if wasPresent {
-            Some(Hand {
+            Ok(Hand {
                 side: self.side,
                 cards: newCards,
             })
         } else {
-            None
+            Err(Error::CardNotFound { card })
         }
+    }
+
+    pub fn add(&self, card: Card) -> Result<Hand, Error> {
+        if self.cards.len() >= Self::SIZE {
+            return Err(Error::HandFull);
+        }
+
+        let mut newCards = self.cards.clone();
+        let ok = newCards.insert(card.toId().into());
+        if ok {
+            Ok(Hand {
+                side: self.side,
+                cards: newCards,
+            })
+        } else {
+            Err(Error::DuplicateCard { card })
+        }
+    }
+}
+
+impl fmt::Display for Hand {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let cardsStr = self
+            .toVec()
+            .into_iter()
+            .map(|c| format!("{}", c))
+            .join(", ");
+        write!(f, "{}", cardsStr)
     }
 }
 
@@ -69,7 +121,8 @@ mod tests {
             Card::fromId(32),
         ]);
         assert_eq!(hand.toSet(), expected);
-        assert_eq!(newDeck.remainingCards(), (Card::DECK_SIZE - Hand::SIZE))
+        assert_eq!(newDeck.remainingCards(), (Card::DECK_SIZE - Hand::SIZE));
+        assert_eq!(format!("{}", hand), "Y5, B2, B4, W7, GB, RB, R5, R7");
     }
 
     #[test]
@@ -78,7 +131,33 @@ mod tests {
         let d = Deck::new(&mut rng);
         let (hand, _) = Hand::new(Side::Up, &d).unwrap();
         let hand2 = hand.take(Card::fromId(50)).unwrap();
-        assert_eq!(hand2.take(Card::fromId(50)), None);
-        assert_eq!(hand2.take(Card::fromId(20)), None);
+        assert_eq!(
+            hand2.take(Card::fromId(50)),
+            Err(Error::CardNotFound {
+                card: Card::fromId(50)
+            })
+        );
+        assert_eq!(
+            hand2.take(Card::fromId(20)),
+            Err(Error::CardNotFound {
+                card: Card::fromId(20)
+            })
+        );
+    }
+
+    #[test]
+    fn test_add() {
+        let mut rng = testRng();
+        let d = Deck::new(&mut rng);
+        let (hand, _) = Hand::new(Side::Up, &d).unwrap();
+        assert_eq!(hand.add(Card::fromId(0)), Err(Error::HandFull));
+        let hand2 = hand.take(Card::fromId(50)).unwrap();
+        assert_eq!(
+            hand2.add(Card::fromId(15)),
+            Err(Error::DuplicateCard {
+                card: Card::fromId(15)
+            })
+        );
+        assert_eq!(hand2.add(Card::fromId(50)), Ok(hand));
     }
 }

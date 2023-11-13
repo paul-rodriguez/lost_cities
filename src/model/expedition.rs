@@ -2,7 +2,7 @@ use super::Card;
 use super::Color;
 use std::rc::Rc;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Expedition {
     color: Color,
     cards: Rc<Vec<Card>>,

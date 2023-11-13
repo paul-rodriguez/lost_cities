@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 use std::rc::Rc;
 use std::{cmp, fmt};
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Halfboard {
     side: Side,
     expeditions: Rc<BTreeMap<Color, Expedition>>,

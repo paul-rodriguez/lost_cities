@@ -5,6 +5,7 @@ use super::{Card, DiscardPile, Side};
 use crate::model::Halfboard;
 use std::fmt;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct Board {
     discard: Rc<DiscardPile>,
     halves: Rc<BTreeMap<Side, Halfboard>>,

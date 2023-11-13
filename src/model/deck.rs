@@ -25,6 +25,11 @@ impl Deck {
     pub fn remainingCards(&self) -> usize {
         self.cards.size()
     }
+
+    pub fn literal(ids: &[u8]) -> Deck {
+        let cards = ids.iter().map(|i| Card::fromId(*i)).collect();
+        Deck { cards }
+    }
 }
 
 #[cfg(test)]
