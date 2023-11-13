@@ -1,7 +1,4 @@
-use super::Card;
-use super::Color;
-use super::Expedition;
-use super::Side;
+use super::{Card, Color, Error, Expedition, Side};
 use core::ops::Range;
 use itertools::Itertools;
 use std::collections::BTreeMap;
@@ -23,13 +20,13 @@ impl Halfboard {
         }
     }
 
-    pub fn with(&self, card: Card) -> Option<Halfboard> {
+    pub fn with(&self, card: Card) -> Result<Halfboard, Error> {
         let exp = self.exp(card.color());
         let newExp = exp.with(card)?;
 
         let mut newHalf = Rc::clone(&self.expeditions);
         Rc::make_mut(&mut newHalf).insert(newExp.color(), newExp);
-        Some(Halfboard {
+        Ok(Halfboard {
             side: self.side,
             expeditions: newHalf,
         })

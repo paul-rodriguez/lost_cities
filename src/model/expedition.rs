@@ -1,5 +1,4 @@
-use super::Card;
-use super::Color;
+use super::{Card, Color, Error};
 use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -16,13 +15,13 @@ impl Expedition {
         }
     }
 
-    pub fn with(&self, card: Card) -> Option<Expedition> {
+    pub fn with(&self, card: Card) -> Result<Expedition, Error> {
         if !self.canAccept(card) {
-            None
+            Err(Error::CannotAccept { card })
         } else {
             let mut v = Rc::clone(&self.cards);
             Rc::make_mut(&mut v).push(card);
-            Some(Expedition {
+            Ok(Expedition {
                 color: self.color,
                 cards: v,
             })

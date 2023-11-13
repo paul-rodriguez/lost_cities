@@ -25,14 +25,14 @@ impl Hand {
         Some((Hand { side, cards }, newDeck))
     }
 
-    pub fn literal(side: Side, cards: &[Card]) -> anyhow::Result<Hand> {
-        if cards.len() > Hand::SIZE {
+    pub fn literal(side: Side, ids: &[u8]) -> anyhow::Result<Hand> {
+        if ids.len() > Hand::SIZE {
             anyhow::bail!("Too many cards");
         }
         let empty = BitSet::with_capacity(Card::DECK_SIZE);
-        let bits: anyhow::Result<BitSet> = cards.iter().fold(Ok(empty), |b, c| {
+        let bits: anyhow::Result<BitSet> = ids.iter().fold(Ok(empty), |b, c| {
             let mut r = b?.clone();
-            r.insert(c.toId().try_into()?);
+            r.insert((*c).into());
             Ok(r)
         });
         Ok(Hand { side, cards: bits? })
@@ -66,7 +66,7 @@ impl Hand {
         }
     }
 
-    pub fn add(&self, card: Card) -> Result<Hand, Error> {
+    pub fn with(&self, card: Card) -> Result<Hand, Error> {
         if self.cards.len() >= Self::SIZE {
             return Err(Error::HandFull);
         }
@@ -81,6 +81,10 @@ impl Hand {
         } else {
             Err(Error::DuplicateCard { card })
         }
+    }
+
+    pub fn side(&self) -> Side {
+        self.side
     }
 }
 
@@ -150,14 +154,14 @@ mod tests {
         let mut rng = testRng();
         let d = Deck::new(&mut rng);
         let (hand, _) = Hand::new(Side::Up, &d).unwrap();
-        assert_eq!(hand.add(Card::fromId(0)), Err(Error::HandFull));
+        assert_eq!(hand.with(Card::fromId(0)), Err(Error::HandFull));
         let hand2 = hand.take(Card::fromId(50)).unwrap();
         assert_eq!(
-            hand2.add(Card::fromId(15)),
+            hand2.with(Card::fromId(15)),
             Err(Error::DuplicateCard {
                 card: Card::fromId(15)
             })
         );
-        assert_eq!(hand2.add(Card::fromId(50)), Ok(hand));
+        assert_eq!(hand2.with(Card::fromId(50)), Ok(hand));
     }
 }

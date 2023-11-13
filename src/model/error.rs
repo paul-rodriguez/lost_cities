@@ -9,4 +9,10 @@ pub enum Error {
     HandFull,
     #[error("card already in hand: {card}")]
     DuplicateCard { card: Card },
+    #[error("the game is over")]
+    GameOver,
+    #[error("expedition cannot accept card {card}")]
+    CannotAccept { card: Card },
+    #[error("the discard pile was empty")]
+    DiscardPileEmpty,
 }

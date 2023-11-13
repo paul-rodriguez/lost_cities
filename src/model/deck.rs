@@ -26,6 +26,10 @@ impl Deck {
         self.cards.size()
     }
 
+    pub fn isEmpty(&self) -> bool {
+        self.cards.is_empty()
+    }
+
     pub fn literal(ids: &[u8]) -> Deck {
         let cards = ids.iter().map(|i| Card::fromId(*i)).collect();
         Deck { cards }

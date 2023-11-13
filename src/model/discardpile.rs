@@ -1,4 +1,4 @@
-use super::{Card, Color};
+use super::{Card, Color, Error};
 use itertools::Itertools;
 use std::collections::BTreeMap;
 use std::fmt;
@@ -26,17 +26,23 @@ impl DiscardPile {
         DiscardPile { piles: newPiles }
     }
 
-    pub fn top(&self, color: Color) -> Option<Card> {
+    pub fn top(&self, color: Color) -> Result<Card, Error> {
         let pile = self.colorPile(color);
-        pile.last().copied()
+        match pile.last().copied() {
+            None => Err(Error::DiscardPileEmpty),
+            Some(card) => Ok(card),
+        }
     }
 
-    pub fn take(&self, color: Color) -> Option<(Card, DiscardPile)> {
-        let mut newPile = self.colorPile(color);
-        let card = Rc::make_mut(&mut newPile).pop()?;
+    pub fn take(&self, card: Card) -> Result<DiscardPile, Error> {
+        let mut newPile = self.colorPile(card.color());
+        match Rc::make_mut(&mut newPile).pop() {
+            None => return Err(Error::CardNotFound { card }),
+            Some(_) => (),
+        };
         let mut newPiles = self.piles.clone();
-        newPiles.insert(color, newPile);
-        Some((card, DiscardPile { piles: newPiles }))
+        newPiles.insert(card.color(), newPile);
+        Ok(DiscardPile { piles: newPiles })
     }
 
     fn colorPile(&self, color: Color) -> Rc<Vec<Card>> {
@@ -85,19 +91,24 @@ mod tests {
     #[test]
     fn test_topEmpty() {
         let p = DiscardPile::empty();
-        assert_eq!(p.top(Color::Red), None)
+        assert_eq!(p.top(Color::Red), Err(Error::DiscardPileEmpty))
     }
 
     #[test]
     fn test_takeEmpty() {
         let p = DiscardPile::empty();
-        assert_eq!(p.take(Color::Red), None)
+        assert_eq!(
+            p.take(Card::fromId(39)),
+            Err(Error::CardNotFound {
+                card: Card::fromId(39)
+            })
+        )
     }
 
     #[test]
     fn test_takeOk() {
         let p = DiscardPile::empty().with(Card::fromId(0));
-        let expected = Some((Card::fromId(0), DiscardPile::empty()));
-        assert_eq!(p.take(Color::Yellow), expected)
+        let expected = Ok(DiscardPile::empty());
+        assert_eq!(p.take(Card::fromId(0)), expected)
     }
 }

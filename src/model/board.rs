@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
-use super::{Card, DiscardPile, Side};
+use super::{Card, DiscardPile, Error, PlayTo, Side};
 use crate::model::Halfboard;
 use std::fmt;
 
@@ -34,11 +34,18 @@ impl Board {
         }
     }
 
-    pub fn scoreCard(self, side: Side, card: Card) -> Option<Board> {
+    pub fn play(self, side: Side, card: Card, playTo: PlayTo) -> Result<Board, Error> {
+        match playTo {
+            PlayTo::Discard => Ok(self.discardCard(card)),
+            PlayTo::Expedition => self.scoreCard(side, card),
+        }
+    }
+
+    pub fn scoreCard(self, side: Side, card: Card) -> Result<Board, Error> {
         let newHalf = self.half(side).with(card)?;
         let mut newHalves = Rc::clone(&self.halves);
         Rc::make_mut(&mut newHalves).insert(side, newHalf);
-        Some(Board {
+        Ok(Board {
             discard: Rc::clone(&self.discard),
             halves: newHalves,
         })
@@ -52,6 +59,18 @@ impl Board {
         }
     }
 
+    pub fn take(self, card: Card) -> Result<Board, Error> {
+        let newDiscard = self.discard.take(card)?;
+        Ok(Board {
+            discard: Rc::new(newDiscard),
+            halves: self.halves,
+        })
+    }
+
+    pub fn discardPile(&self) -> &DiscardPile {
+        &self.discard
+    }
+
     fn half(&self, side: Side) -> &Halfboard {
         return self.halves.get(&side).unwrap();
     }
@@ -60,6 +79,7 @@ impl Board {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::model::Color;
 
     #[test]
     fn test_boardDisplayEmpty() {
@@ -106,10 +126,10 @@ mod tests {
     #[test]
     fn test_boardScoreCard() {
         let result = Board::new().scoreCard(Side::Up, Card::fromId(5));
-        match result {
-            None => panic!(),
-            _ => (),
-        }
+        assert_eq!(
+            result.unwrap().half(Side::Up).exp(Color::Yellow).top(),
+            Some(Card::fromId(5))
+        )
     }
 
     #[test]
