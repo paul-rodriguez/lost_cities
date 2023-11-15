@@ -1,4 +1,5 @@
-use super::{Card, Color, Error, Expedition, Side};
+use super::{Card, Color, Expedition, Side};
+use crate::error::Error;
 use core::ops::Range;
 use itertools::Itertools;
 use std::collections::BTreeMap;

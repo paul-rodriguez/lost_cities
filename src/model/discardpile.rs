@@ -1,4 +1,5 @@
-use super::{Card, Color, Error};
+use super::{Card, Color};
+use crate::error::Error;
 use itertools::Itertools;
 use std::collections::BTreeMap;
 use std::fmt;

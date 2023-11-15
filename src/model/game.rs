@@ -1,4 +1,5 @@
-use super::{Board, Card, Color, Deck, DrawFrom, Error, Hand, PlayTo, Side};
+use super::{Board, Card, Color, Deck, DrawFrom, Hand, PlayTo, Side};
+use crate::error::Error;
 use rand::Rng;
 use std::collections::HashMap;
 

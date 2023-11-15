@@ -1,4 +1,5 @@
-use super::{Card, Color, Error};
+use super::{Card, Color};
+use crate::error::Error;
 use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq)]

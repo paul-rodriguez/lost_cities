@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
-use super::{Card, DiscardPile, Error, PlayTo, Side};
+use super::{Card, DiscardPile, PlayTo, Side};
+use crate::error::Error;
 use crate::model::Halfboard;
 use std::fmt;
 

@@ -1,3 +1,4 @@
+use crate::error::Error;
 use enum_primitive_derive::Primitive;
 use num_traits::FromPrimitive;
 use std::fmt;
@@ -38,5 +39,26 @@ impl fmt::Display for Color {
             Color::Red => "R",
         };
         write!(f, "{}", letter)
+    }
+}
+
+impl std::str::FromStr for Color {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let character = s.chars().nth(0).ok_or(Error::CannotParseColor {
+            cause: Box::new(Error::InputTooShort),
+        })?;
+
+        match character {
+            'Y' | 'y' => Ok(Color::Yellow),
+            'B' | 'b' => Ok(Color::Blue),
+            'W' | 'w' => Ok(Color::White),
+            'G' | 'g' => Ok(Color::Green),
+            'R' | 'r' => Ok(Color::Red),
+            default => Err(Error::CannotParseColor {
+                cause: Box::new(Error::UnexpectedCharacter { c: character }),
+            }),
+        }
     }
 }

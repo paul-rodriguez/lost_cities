@@ -1,4 +1,5 @@
-use super::{Card, Deck, Error, Side};
+use super::{Card, Deck, Side};
+use crate::error::Error;
 use anyhow;
 use bit_set::BitSet;
 use itertools::Itertools;

@@ -1,4 +1,5 @@
 use super::{Color, Value};
+use crate::error::Error;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -44,6 +45,16 @@ impl Card {
     pub fn toId(self) -> u8 {
         self.id
     }
+
+    /// Cards obtained this way aren't meant to be used as part of a Deck.
+    ///
+    /// There are three identical copies of each bet card, and this function can only return one of
+    /// them.
+    /// Unless there's a very good reason not to, Card::fromId should be used instead.
+    fn new(color: Color, value: Value) -> Card {
+        let colorComponent: u8 = Value::familySize() * color as u8;
+        Card::fromId(colorComponent + value.prototypeId())
+    }
 }
 
 impl fmt::Display for Card {
@@ -52,15 +63,48 @@ impl fmt::Display for Card {
     }
 }
 
-#[cfg(tests)]
+impl std::str::FromStr for Card {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let first = s.get(0..1).ok_or(Error::CannotParseCard {
+            cause: Box::new(Error::InputTooShort),
+        })?;
+        let second = s.get(1..2).ok_or(Error::CannotParseCard {
+            cause: Box::new(Error::InputTooShort),
+        })?;
+
+        let color: Color = match first.parse() {
+            Ok(c) => c,
+            Err(e) => return Err(Error::CannotParseCard { cause: Box::new(e) }),
+        };
+
+        let value: Value = match second.parse() {
+            Ok(v) => v,
+            Err(e) => return Err(Error::CannotParseCard { cause: Box::new(e) }),
+        };
+
+        Ok(Self::new(color, value))
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_create() {
-        card = Card {
-            color: Color::White,
-            value: Value::Bet,
-        }
+    fn test_new() {
+        let card = Card::new(Color::Blue, Value::Bet);
+        assert_eq!(card.color(), Color::Blue);
+        assert_eq!(card.value(), Value::Bet);
+        assert_eq!(card, Card::fromId(12));
+    }
+
+    #[test]
+    fn test_fromStr() {
+        let r3card: Card = "r3".parse().unwrap();
+        assert_eq!(r3card, Card::fromId(52));
+        let wbcard: Card = "wb".parse().unwrap();
+        assert_eq!(wbcard, Card::fromId(24));
     }
 }
